@@ -67,7 +67,7 @@ public class TemplateContextModel {
 	}
 
 	public JSONArray select() {
-		return dbtemp.select();
+		return dbtemp.limit(20).select();
 	}
 
 	public JSONArray select(String tempinfo) {
@@ -77,7 +77,7 @@ public class TemplateContextModel {
 		for (Object object2 : set) {
 			dbtemp.eq(object2.toString(), object.get(object2.toString()));
 		}
-		return dbtemp.select();
+		return dbtemp.limit(20).select();
 	}
 
 	public String page(int idx, int pageSize) {
