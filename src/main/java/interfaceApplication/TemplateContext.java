@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.JSONObject;
 
 import esayhelper.JSONHelper;
+import esayhelper.jGrapeFW_Message;
 import model.TemplateContextModel;
 
 @SuppressWarnings("unchecked")
@@ -35,6 +36,16 @@ public class TemplateContext {
 		return StringEscapeUtils.unescapeJava(temp.resultMessage(0, _obj.toString()));
 	}
 
+	public String TempFindByTid(String tid) {
+		JSONObject object = temp.find(tid);
+		System.out.println(object);
+		String name = "";
+		if (object!=null) {
+			name = object.get("name").toString();
+		}
+		return name;
+	}
+	
 	public String TempFind(String tempinfo) {
 		_obj.put("record", temp.select(tempinfo));
 		return StringEscapeUtils.unescapeJava(temp.resultMessage(0, _obj.toString()));

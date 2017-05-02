@@ -33,7 +33,7 @@ public class TemplateContextModel {
 	// }
 
 	static {
-		dbtemp = new DBHelper("mongodb", "tempcontext", "_id");
+		dbtemp = new DBHelper("mongodb", "tempcontext");
 		_form = dbtemp.getChecker();
 	}
 
@@ -68,7 +68,9 @@ public class TemplateContextModel {
 	public JSONArray select() {
 		return dbtemp.limit(20).select();
 	}
-
+	public JSONObject find(String tid) {
+		return dbtemp.eq("_id", new ObjectId(tid)).find();
+	}
 	public JSONArray select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
 		@SuppressWarnings("unchecked")
