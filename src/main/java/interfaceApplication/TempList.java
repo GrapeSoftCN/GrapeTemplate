@@ -2,20 +2,16 @@ package interfaceApplication;
 
 import java.util.HashMap;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.JSONObject;
 
 import esayhelper.JSONHelper;
 import model.TempListModel;
 
-@SuppressWarnings("unchecked")
 public class TempList {
 	private TempListModel temp = new TempListModel();
 	private HashMap<String, Object> map = new HashMap<>();
-	private JSONObject _obj = new JSONObject();
 
 	public TempList() {
-		map.put("tid", TempListModel.getID());
 		map.put("ownid", "0");
 		map.put("isdelete", 0);
 		map.put("sort", 0);
@@ -31,13 +27,11 @@ public class TempList {
 	}
 
 	public String TempListSelect() {
-		_obj.put("record", temp.select());
-		return StringEscapeUtils.unescapeJava(temp.resultmessage(0, _obj.toString()));
+		return temp.resultmessage(temp.select());
 	}
 
 	public String TempListFind(String tempinfo) {
-		_obj.put("record", temp.select(tempinfo));
-		return StringEscapeUtils.unescapeJava(temp.resultmessage(0, _obj.toString()));
+		return temp.resultmessage(temp.select(tempinfo));
 	}
 
 	public String TempListUpdate(String tid, String tempinfo) {
@@ -46,13 +40,11 @@ public class TempList {
 	}
 
 	public String TempListPage(int idx, int pageSize) {
-		_obj.put("record", temp.page(idx, pageSize));
-		return StringEscapeUtils.unescapeJava(temp.resultmessage(0, _obj.toString()));
+		return temp.resultmessage(temp.page(idx, pageSize));
 	}
 
 	public String TempListPageBy(int idx, int pageSize, String tempinfo) {
-		_obj.put("record", temp.page(tempinfo, idx, pageSize));
-		return StringEscapeUtils.unescapeJava(temp.resultmessage(0, _obj.toString()));
+		return temp.resultmessage(temp.page(tempinfo, idx, pageSize));
 	}
 
 	public String TempListSort(String tid, long num) {

@@ -20,17 +20,7 @@ import esayhelper.formHelper.formdef;
 public class TemplateContextModel {
 	private static DBHelper dbtemp;
 	private static formHelper _form;
-
-	// public TemplateContextModel() {
-	// _form = new formHelper();
-	// _form.addNotNull("tid,name,time");
-	// HashMap<String, Object> map = new HashMap<>();
-	// map.put("tempid", getID());
-	// map.put("ownid", 0);
-	// map.put("isdelete", 0);
-	// map.put("sort", 0);
-	// _form.adddef(map);
-	// }
+	private JSONObject _obj = new JSONObject();
 
 	static {
 		dbtemp = new DBHelper("mongodb", "tempcontext");
@@ -38,58 +28,55 @@ public class TemplateContextModel {
 	}
 
 	public TemplateContextModel() {
-		_form.putRule("tid"/* ,name,time" */, formdef.notNull);
+		_form.putRule("name", formdef.notNull);
+		_form.putRule("time", formdef.notNull);
 	}
 
 	public int insert(JSONObject tempinfo) {
 		if (!_form.checkRuleEx(tempinfo)) {
 			return 1;
 		}
-		// int cknode = _form.check_forminfo(tempinfo);
-		// if (cknode == 1) {
-		// return 1;
-		// }
 		return dbtemp.data(tempinfo).insertOnce() != null ? 0 : 99;
 	}
 
 	public int delete(String id) {
 		return dbtemp.eq("_id", new ObjectId(id)).delete() != null ? 0 : 99;
-		// return dbtemp.delete(new ObjectId(id))==true ? 0 : 99;
 	}
 
 	public int update(String tempid, JSONObject tempInfo) {
-		// 非空字段查询
-		if (!_form.checkRule(tempInfo)) {
-			return 1;
-		}
 		return dbtemp.eq("_id", new ObjectId(tempid)).data(tempInfo).update() != null ? 0 : 99;
 	}
 
 	public JSONArray select() {
 		return dbtemp.limit(20).select();
 	}
+
 	public JSONObject find(String tid) {
 		return dbtemp.eq("_id", new ObjectId(tid)).find();
 	}
+
 	public JSONArray select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
-		@SuppressWarnings("unchecked")
-		Set<Object> set = object.keySet();
-		for (Object object2 : set) {
-			dbtemp.eq(object2.toString(), object.get(object2.toString()));
+		for (Object object2 : object.keySet()) {
+			dbtemp.like(object2.toString(), object.get(object2.toString()));
 		}
 		return dbtemp.limit(20).select();
 	}
 
+	// 根据模版类型显示模版
+	public JSONArray search(String type) {
+		return dbtemp.eq("type", type).limit(20).select();
+	}
+
 	@SuppressWarnings("unchecked")
-	public String page(int idx, int pageSize) {
+	public JSONObject page(int idx, int pageSize) {
 		JSONArray array = dbtemp.page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize", (int) Math.ceil((double) dbtemp.count() / pageSize));
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
-		return object.toString();
+		return object;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -158,6 +145,18 @@ public class TemplateContextModel {
 			}
 		}
 		return object;
+	}
+
+	@SuppressWarnings("unchecked")
+	public String resultMessage(JSONObject object) {
+		_obj.put("records", object);
+		return resultMessage(0, _obj.toString());
+	}
+
+	@SuppressWarnings("unchecked")
+	public String resultMessage(JSONArray array) {
+		_obj.put("records", array);
+		return resultMessage(0, _obj.toString());
 	}
 
 	public String resultMessage(int num, String msg) {
