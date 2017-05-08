@@ -21,7 +21,7 @@ public class TempListModel {
 	private JSONObject _obj = new JSONObject();
 
 	static {
-		dbtemp = new DBHelper("mongodb", "templist", "_id");
+		dbtemp = new DBHelper("mongodb", "templateList", "_id");
 		_form = dbtemp.getChecker();
 	}
 

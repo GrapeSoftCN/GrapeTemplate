@@ -23,7 +23,7 @@ public class TemplateContextModel {
 	private JSONObject _obj = new JSONObject();
 
 	static {
-		dbtemp = new DBHelper("mongodb", "tempcontext");
+		dbtemp = new DBHelper("mongodb", "templateContect");
 		_form = dbtemp.getChecker();
 	}
 
