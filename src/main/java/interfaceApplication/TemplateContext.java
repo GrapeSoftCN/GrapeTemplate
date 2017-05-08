@@ -34,10 +34,6 @@ public class TemplateContext {
 		return temp.resultMessage(temp.delete(tempid.split(",")), "批量删除成功");
 	}
 
-	public String TempSelect() {
-		return temp.resultMessage(temp.select());
-	}
-
 	public String TempFindByTid(String tid) {
 		JSONObject object = temp.find(tid);
 		String name = "";
@@ -48,11 +44,11 @@ public class TemplateContext {
 	}
 
 	public String TempFindByType(String type) {
-		return temp.resultMessage(temp.search(type));
+		return temp.search(type);
 	}
 
 	public String TempFind(String tempinfo) {
-		return temp.resultMessage(temp.select(tempinfo));
+		return temp.select(tempinfo);
 	}
 
 	public String TempUpdate(String tempid, String tempinfo) {
@@ -60,11 +56,11 @@ public class TemplateContext {
 	}
 
 	public String TempPage(int idx, int pageSize) {
-		return temp.resultMessage(temp.page(idx, pageSize));
+		return temp.page(idx, pageSize);
 	}
 
 	public String TempPageBy(int idx, int pageSize, String tempinfo) {
-		return temp.resultMessage(temp.page(tempinfo, idx, pageSize));
+		return temp.page(tempinfo, idx, pageSize);
 	}
 
 	public String TempSort(String tempid, long num) {

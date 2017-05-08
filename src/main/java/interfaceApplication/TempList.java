@@ -27,11 +27,11 @@ public class TempList {
 	}
 
 	public String TempListSelect() {
-		return temp.resultmessage(temp.select());
+		return temp.select();
 	}
 
 	public String TempListFind(String tempinfo) {
-		return temp.resultmessage(temp.select(tempinfo));
+		return temp.select(tempinfo);
 	}
 
 	public String TempListUpdate(String tid, String tempinfo) {
@@ -40,11 +40,11 @@ public class TempList {
 	}
 
 	public String TempListPage(int idx, int pageSize) {
-		return temp.resultmessage(temp.page(idx, pageSize));
+		return temp.page(idx, pageSize);
 	}
 
 	public String TempListPageBy(int idx, int pageSize, String tempinfo) {
-		return temp.resultmessage(temp.page(tempinfo, idx, pageSize));
+		return temp.page(tempinfo, idx, pageSize);
 	}
 
 	public String TempListSort(String tid, long num) {

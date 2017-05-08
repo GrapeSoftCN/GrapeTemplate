@@ -47,40 +47,38 @@ public class TemplateContextModel {
 		return dbtemp.eq("_id", new ObjectId(tempid)).data(tempInfo).update() != null ? 0 : 99;
 	}
 
-	public JSONArray select() {
-		return dbtemp.limit(20).select();
-	}
-
 	public JSONObject find(String tid) {
 		return dbtemp.eq("_id", new ObjectId(tid)).find();
 	}
 
-	public JSONArray select(String tempinfo) {
+	public String select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
 		for (Object object2 : object.keySet()) {
 			dbtemp.like(object2.toString(), object.get(object2.toString()));
 		}
-		return dbtemp.limit(20).select();
+		JSONArray array = dbtemp.limit(20).select();
+		return resultMessage(array);
 	}
 
 	// 根据模版类型显示模版
-	public JSONArray search(String type) {
-		return dbtemp.eq("type", type).limit(20).select();
+	public String search(String type) {
+		JSONArray array = dbtemp.eq("type", type).limit(20).select();
+		return resultMessage(array);
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject page(int idx, int pageSize) {
+	public String page(int idx, int pageSize) {
 		JSONArray array = dbtemp.page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize", (int) Math.ceil((double) dbtemp.count() / pageSize));
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
-		return object;
+		return resultMessage(object);
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject page(String tempinfo, int idx, int pageSize) {
+	public String page(String tempinfo, int idx, int pageSize) {
 		Set<Object> set = JSONHelper.string2json(tempinfo).keySet();
 		for (Object object2 : set) {
 			dbtemp.eq(object2.toString(), JSONHelper.string2json(tempinfo).get(object2.toString()));
@@ -91,7 +89,7 @@ public class TemplateContextModel {
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
-		return object;
+		return resultMessage(object);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,16 +115,6 @@ public class TemplateContextModel {
 	}
 
 	/**
-	 * 生成32位随机编码
-	 * 
-	 * @return
-	 */
-	public static String getID() {
-		String str = UUID.randomUUID().toString().trim();
-		return str.replace("-", "");
-	}
-
-	/**
 	 * 将map添加至JSONObject中
 	 * 
 	 * @param map
@@ -148,13 +136,13 @@ public class TemplateContextModel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String resultMessage(JSONObject object) {
+	private String resultMessage(JSONObject object) {
 		_obj.put("records", object);
 		return resultMessage(0, _obj.toString());
 	}
 
 	@SuppressWarnings("unchecked")
-	public String resultMessage(JSONArray array) {
+	private String resultMessage(JSONArray array) {
 		_obj.put("records", array);
 		return resultMessage(0, _obj.toString());
 	}

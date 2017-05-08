@@ -40,16 +40,16 @@ public class TempListModel {
 		return dbtemp.eq("_id", new ObjectId(id)).delete() != null ? 0 : 99;
 	}
 
-	public JSONArray select() {
-		return dbtemp.limit(20).select();
+	public String select() {
+		return resultmessage(dbtemp.limit(20).select());
 	}
 
-	public JSONArray select(String tempinfo) {
+	public String select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
 		for (Object object2 : object.keySet()) {
-			dbtemp.eq(object2.toString(), object.get(object2.toString()));
+			dbtemp.like(object2.toString(), object.get(object2.toString()));
 		}
-		return dbtemp.limit(20).select();
+		return resultmessage(dbtemp.limit(20).select());
 	}
 
 	public int update(String tid, JSONObject tempinfo) {
@@ -58,7 +58,7 @@ public class TempListModel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject page(int idx, int pageSize) {
+	public String page(int idx, int pageSize) {
 		JSONArray array = dbtemp.page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize",
@@ -66,11 +66,11 @@ public class TempListModel {
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
-		return object;
+		return resultmessage(object);
 	}
 
 	@SuppressWarnings("unchecked")
-	public JSONObject page(String tempinfo, int idx, int pageSize) {
+	public String page(String tempinfo, int idx, int pageSize) {
 		JSONObject info = JSONHelper.string2json(tempinfo);
 		for (Object object2 : info.keySet()) {
 			dbtemp.eq(object2.toString(), info.get(object2.toString()));
@@ -82,7 +82,7 @@ public class TempListModel {
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
-		return object;
+		return resultmessage(object);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -126,13 +126,13 @@ public class TempListModel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String resultmessage(JSONObject object) {
+	private String resultmessage(JSONObject object) {
 		_obj.put("records", object);
 		return resultmessage(0, _obj.toString());
 	}
 
 	@SuppressWarnings("unchecked")
-	public String resultmessage(JSONArray array) {
+	private String resultmessage(JSONArray array) {
 		_obj.put("records", array);
 		return resultmessage(0, _obj.toString());
 	}
