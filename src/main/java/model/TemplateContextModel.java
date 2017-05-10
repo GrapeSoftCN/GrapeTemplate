@@ -3,14 +3,13 @@ package model;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import java.util.Map.Entry;
 
 import org.bson.types.ObjectId;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import apps.appsProxy;
 import esayhelper.DBHelper;
 import esayhelper.JSONHelper;
 import esayhelper.formHelper;
@@ -23,6 +22,8 @@ public class TemplateContextModel {
 	private JSONObject _obj = new JSONObject();
 
 	static {
+//		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(),
+//				"templateContect");
 		dbtemp = new DBHelper("mongodb", "templateContect");
 		_form = dbtemp.getChecker();
 	}
@@ -44,7 +45,8 @@ public class TemplateContextModel {
 	}
 
 	public int update(String tempid, JSONObject tempInfo) {
-		return dbtemp.eq("_id", new ObjectId(tempid)).data(tempInfo).update() != null ? 0 : 99;
+		return dbtemp.eq("_id", new ObjectId(tempid)).data(tempInfo)
+				.update() != null ? 0 : 99;
 	}
 
 	public JSONObject find(String tid) {
@@ -54,6 +56,9 @@ public class TemplateContextModel {
 	public String select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
 		for (Object object2 : object.keySet()) {
+			if ("_id".equals(object2.toString())) {
+				dbtemp.eq("_id", new ObjectId(object.get("_id").toString()));
+			}
 			dbtemp.like(object2.toString(), object.get(object2.toString()));
 		}
 		JSONArray array = dbtemp.limit(20).select();
@@ -70,7 +75,8 @@ public class TemplateContextModel {
 	public String page(int idx, int pageSize) {
 		JSONArray array = dbtemp.page(idx, pageSize);
 		JSONObject object = new JSONObject();
-		object.put("totalSize", (int) Math.ceil((double) dbtemp.count() / pageSize));
+		object.put("totalSize",
+				(int) Math.ceil((double) dbtemp.count() / pageSize));
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
@@ -79,13 +85,17 @@ public class TemplateContextModel {
 
 	@SuppressWarnings("unchecked")
 	public String page(String tempinfo, int idx, int pageSize) {
-		Set<Object> set = JSONHelper.string2json(tempinfo).keySet();
-		for (Object object2 : set) {
-			dbtemp.eq(object2.toString(), JSONHelper.string2json(tempinfo).get(object2.toString()));
+		JSONObject Info = JSONHelper.string2json(tempinfo);
+		for (Object object2 : Info.keySet()) {
+			if ("_id".equals(object2.toString())) {
+				dbtemp.eq("_id", new ObjectId(Info.get("_id").toString()));
+			}
+			dbtemp.eq(object2.toString(), Info.get(object2.toString()));
 		}
-		JSONArray array = dbtemp.page(idx, pageSize);
+		JSONArray array = dbtemp.dirty().page(idx, pageSize);
 		JSONObject object = new JSONObject();
-		object.put("totalSize", (int) Math.ceil((double) dbtemp.count() / pageSize));
+		object.put("totalSize",
+				(int) Math.ceil((double) dbtemp.count() / pageSize));
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
@@ -96,14 +106,16 @@ public class TemplateContextModel {
 	public int sort(String tempid, long num) {
 		JSONObject object = new JSONObject();
 		object.put("sort", num);
-		return dbtemp.eq("_id", new ObjectId(tempid)).data(object).update() != null ? 0 : 99;
+		return dbtemp.eq("_id", new ObjectId(tempid)).data(object)
+				.update() != null ? 0 : 99;
 	}
 
 	@SuppressWarnings("unchecked")
 	public int setTid(String tempid, String tid) {
 		JSONObject object = new JSONObject();
 		object.put("tid", tid);
-		return dbtemp.eq("_id", new ObjectId(tempid)).data(object).update() != null ? 0 : 99;
+		return dbtemp.eq("_id", new ObjectId(tempid)).data(object)
+				.update() != null ? 0 : 99;
 	}
 
 	public int delete(String[] arr) {
@@ -124,9 +136,11 @@ public class TemplateContextModel {
 	@SuppressWarnings("unchecked")
 	public JSONObject AddMap(HashMap<String, Object> map, JSONObject object) {
 		if (map.entrySet() != null) {
-			Iterator<Entry<String, Object>> iterator = map.entrySet().iterator();
+			Iterator<Entry<String, Object>> iterator = map.entrySet()
+					.iterator();
 			while (iterator.hasNext()) {
-				Map.Entry<String, Object> entry = (Map.Entry<String, Object>) iterator.next();
+				Map.Entry<String, Object> entry = (Map.Entry<String, Object>) iterator
+						.next();
 				if (!object.containsKey(entry.getKey())) {
 					object.put(entry.getKey(), entry.getValue());
 				}

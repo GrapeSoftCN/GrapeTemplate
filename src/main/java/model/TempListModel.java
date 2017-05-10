@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import apps.appsProxy;
 import esayhelper.DBHelper;
 import esayhelper.JSONHelper;
 import esayhelper.formHelper;
@@ -21,7 +22,9 @@ public class TempListModel {
 	private JSONObject _obj = new JSONObject();
 
 	static {
-		dbtemp = new DBHelper("mongodb", "templateList", "_id");
+//		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(),
+//				"templateList","_id");
+		dbtemp = new DBHelper("mongodb", "templateList");
 		_form = dbtemp.getChecker();
 	}
 
@@ -73,9 +76,12 @@ public class TempListModel {
 	public String page(String tempinfo, int idx, int pageSize) {
 		JSONObject info = JSONHelper.string2json(tempinfo);
 		for (Object object2 : info.keySet()) {
-			dbtemp.eq(object2.toString(), info.get(object2.toString()));
+			if ("_id".equals(object2.toString())) {
+				dbtemp.eq("_id", new ObjectId(info.get("_id").toString()));
+			}
+			dbtemp.like(object2.toString(), info.get(object2.toString()));
 		}
-		JSONArray array = dbtemp.page(idx, pageSize);
+		JSONArray array = dbtemp.dirty().page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize",
 				(int) Math.ceil((double) array.size() / pageSize));
