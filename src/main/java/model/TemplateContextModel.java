@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import apps.appsProxy;
+import database.db;
 import esayhelper.DBHelper;
 import esayhelper.JSONHelper;
 import esayhelper.formHelper;
@@ -22,12 +23,14 @@ public class TemplateContextModel {
 	private JSONObject _obj = new JSONObject();
 
 	static {
-//		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(),
-//				"templateContect");
-		dbtemp = new DBHelper("mongodb", "templateContect");
+		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(),
+				"templateContect");
 		_form = dbtemp.getChecker();
 	}
 
+	private db bind(){
+		return dbtemp.bind(String.valueOf(appsProxy.appid()));
+	}
 	public TemplateContextModel() {
 		_form.putRule("name", formdef.notNull);
 		_form.putRule("time", formdef.notNull);
@@ -37,46 +40,46 @@ public class TemplateContextModel {
 		if (!_form.checkRuleEx(tempinfo)) {
 			return 1;
 		}
-		return dbtemp.data(tempinfo).insertOnce() != null ? 0 : 99;
+		return bind().data(tempinfo).insertOnce() != null ? 0 : 99;
 	}
 
 	public int delete(String id) {
-		return dbtemp.eq("_id", new ObjectId(id)).delete() != null ? 0 : 99;
+		return bind().eq("_id", new ObjectId(id)).delete() != null ? 0 : 99;
 	}
 
 	public int update(String tempid, JSONObject tempInfo) {
-		return dbtemp.eq("_id", new ObjectId(tempid)).data(tempInfo)
+		return bind().eq("_id", new ObjectId(tempid)).data(tempInfo)
 				.update() != null ? 0 : 99;
 	}
 
 	public JSONObject find(String tid) {
-		return dbtemp.eq("_id", new ObjectId(tid)).find();
+		return bind().eq("_id", new ObjectId(tid)).find();
 	}
 
 	public String select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
 		for (Object object2 : object.keySet()) {
 			if ("_id".equals(object2.toString())) {
-				dbtemp.eq("_id", new ObjectId(object.get("_id").toString()));
+				bind().eq("_id", new ObjectId(object.get("_id").toString()));
 			}
-			dbtemp.like(object2.toString(), object.get(object2.toString()));
+			bind().like(object2.toString(), object.get(object2.toString()));
 		}
-		JSONArray array = dbtemp.limit(20).select();
+		JSONArray array = bind().limit(20).select();
 		return resultMessage(array);
 	}
 
 	// 根据模版类型显示模版
 	public String search(String type) {
-		JSONArray array = dbtemp.eq("type", type).limit(20).select();
+		JSONArray array = bind().eq("type", type).limit(20).select();
 		return resultMessage(array);
 	}
 
 	@SuppressWarnings("unchecked")
 	public String page(int idx, int pageSize) {
-		JSONArray array = dbtemp.page(idx, pageSize);
+		JSONArray array = bind().page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize",
-				(int) Math.ceil((double) dbtemp.count() / pageSize));
+				(int) Math.ceil((double) bind().count() / pageSize));
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
@@ -88,14 +91,14 @@ public class TemplateContextModel {
 		JSONObject Info = JSONHelper.string2json(tempinfo);
 		for (Object object2 : Info.keySet()) {
 			if ("_id".equals(object2.toString())) {
-				dbtemp.eq("_id", new ObjectId(Info.get("_id").toString()));
+				bind().eq("_id", new ObjectId(Info.get("_id").toString()));
 			}
-			dbtemp.eq(object2.toString(), Info.get(object2.toString()));
+			bind().eq(object2.toString(), Info.get(object2.toString()));
 		}
-		JSONArray array = dbtemp.dirty().page(idx, pageSize);
+		JSONArray array = bind().dirty().page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize",
-				(int) Math.ceil((double) dbtemp.count() / pageSize));
+				(int) Math.ceil((double) bind().count() / pageSize));
 		object.put("currentPage", idx);
 		object.put("pageSize", pageSize);
 		object.put("data", array);
@@ -106,7 +109,7 @@ public class TemplateContextModel {
 	public int sort(String tempid, long num) {
 		JSONObject object = new JSONObject();
 		object.put("sort", num);
-		return dbtemp.eq("_id", new ObjectId(tempid)).data(object)
+		return bind().eq("_id", new ObjectId(tempid)).data(object)
 				.update() != null ? 0 : 99;
 	}
 
@@ -114,16 +117,16 @@ public class TemplateContextModel {
 	public int setTid(String tempid, String tid) {
 		JSONObject object = new JSONObject();
 		object.put("tid", tid);
-		return dbtemp.eq("_id", new ObjectId(tempid)).data(object)
+		return bind().eq("_id", new ObjectId(tempid)).data(object)
 				.update() != null ? 0 : 99;
 	}
 
 	public int delete(String[] arr) {
-		dbtemp.or();
+		bind().or();
 		for (int i = 0; i < arr.length; i++) {
-			dbtemp.eq("_id", new ObjectId(arr[i]));
+			bind().eq("_id", new ObjectId(arr[i]));
 		}
-		return dbtemp.deleteAll() == arr.length ? 0 : 99;
+		return bind().deleteAll() == arr.length ? 0 : 99;
 	}
 
 	/**

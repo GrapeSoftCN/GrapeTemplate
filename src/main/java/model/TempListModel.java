@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import apps.appsProxy;
+import database.db;
 import esayhelper.DBHelper;
 import esayhelper.JSONHelper;
 import esayhelper.formHelper;
@@ -22,12 +23,14 @@ public class TempListModel {
 	private JSONObject _obj = new JSONObject();
 
 	static {
-//		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(),
-//				"templateList","_id");
-		dbtemp = new DBHelper("mongodb", "templateList");
+		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(),
+				"templateList","_id");
 		_form = dbtemp.getChecker();
 	}
-
+	private db bind(){
+		return dbtemp.bind(String.valueOf(appsProxy.appid()));
+	}
+	
 	public TempListModel() {
 		_form.putRule("name", formdef.notNull);
 	}
@@ -36,33 +39,33 @@ public class TempListModel {
 		if (!_form.checkRuleEx(tempinfo)) {
 			return 1;
 		}
-		return dbtemp.insert(tempinfo) != null ? 0 : 99;
+		return bind().data(tempinfo).insertOnce() != null ? 0 : 99;
 	}
 
 	public int delete(String id) {
-		return dbtemp.eq("_id", new ObjectId(id)).delete() != null ? 0 : 99;
+		return bind().eq("_id", new ObjectId(id)).delete() != null ? 0 : 99;
 	}
 
 	public String select() {
-		return resultmessage(dbtemp.limit(20).select());
+		return resultmessage(bind().limit(20).select());
 	}
 
 	public String select(String tempinfo) {
 		JSONObject object = JSONHelper.string2json(tempinfo);
 		for (Object object2 : object.keySet()) {
-			dbtemp.like(object2.toString(), object.get(object2.toString()));
+			bind().like(object2.toString(), object.get(object2.toString()));
 		}
-		return resultmessage(dbtemp.limit(20).select());
+		return resultmessage(bind().limit(20).select());
 	}
 
 	public int update(String tid, JSONObject tempinfo) {
-		return dbtemp.eq("_id", new ObjectId(tid)).data(tempinfo)
+		return bind().eq("_id", new ObjectId(tid)).data(tempinfo)
 				.update() != null ? 0 : 99;
 	}
 
 	@SuppressWarnings("unchecked")
 	public String page(int idx, int pageSize) {
-		JSONArray array = dbtemp.page(idx, pageSize);
+		JSONArray array = bind().page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize",
 				(int) Math.ceil((double) array.size() / pageSize));
@@ -77,11 +80,11 @@ public class TempListModel {
 		JSONObject info = JSONHelper.string2json(tempinfo);
 		for (Object object2 : info.keySet()) {
 			if ("_id".equals(object2.toString())) {
-				dbtemp.eq("_id", new ObjectId(info.get("_id").toString()));
+				bind().eq("_id", new ObjectId(info.get("_id").toString()));
 			}
-			dbtemp.like(object2.toString(), info.get(object2.toString()));
+			bind().like(object2.toString(), info.get(object2.toString()));
 		}
-		JSONArray array = dbtemp.dirty().page(idx, pageSize);
+		JSONArray array = bind().dirty().page(idx, pageSize);
 		JSONObject object = new JSONObject();
 		object.put("totalSize",
 				(int) Math.ceil((double) array.size() / pageSize));
@@ -95,17 +98,17 @@ public class TempListModel {
 	public int sort(String tid, long num) {
 		JSONObject object = new JSONObject();
 		object.put("sort", num);
-		return dbtemp.eq("_id", new ObjectId(tid)).data(object).update() != null
+		return bind().eq("_id", new ObjectId(tid)).data(object).update() != null
 				? 0 : 99;
 	}
 
 	public int delete(String[] arr) {
-		dbtemp.or();
+		bind().or();
 		int len = arr.length;
 		for (int i = 0; i < len; i++) {
-			dbtemp.eq("_id", new ObjectId(arr[i]));
+			bind().eq("_id", new ObjectId(arr[i]));
 		}
-		return dbtemp.deleteAll() == len?0:99;
+		return bind().deleteAll() == len?0:99;
 	}
 
 	/**
