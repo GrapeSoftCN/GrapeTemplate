@@ -8,7 +8,7 @@ public class testtemp {
 		 try {
 		 System.out.println("Grapetemp!");
 		 System.setProperty("AppName", "Grapetemp");
-		 booter.start(1005);
+		 booter.start(1002);
 		} catch (Exception e) {
 		}
 	}
