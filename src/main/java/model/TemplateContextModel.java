@@ -10,12 +10,13 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import apps.appsProxy;
+import check.formHelper;
+import check.formHelper.formdef;
+import database.DBHelper;
 import database.db;
-import esayhelper.DBHelper;
+import esayhelper.CacheHelper;
 import esayhelper.JSONHelper;
-import esayhelper.formHelper;
 import esayhelper.jGrapeFW_Message;
-import esayhelper.formHelper.formdef;
 import nlogger.nlogger;
 
 public class TemplateContextModel {
@@ -71,15 +72,19 @@ public class TemplateContextModel {
 	public int update(String tempid, JSONObject tempInfo) {
 		int code = 99;
 		JSONObject object = null;
-		if (tempInfo != null) {
-			try {
-				object = new JSONObject();
-				object = bind().eq("_id", new ObjectId(tempid)).data(tempInfo).update();
-				code = (object != null ? 0 : 99);
-			} catch (Exception e) {
-				nlogger.logout(e);
-				code = 99;
+		try {
+			if (tempInfo != null) {
+				try {
+					object = new JSONObject();
+					object = bind().eq("_id", new ObjectId(tempid)).data(tempInfo).update();
+					code = (object != null ? 0 : 99);
+				} catch (Exception e) {
+					nlogger.logout(e);
+					code = 99;
+				}
 			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 		return code;
 	}
