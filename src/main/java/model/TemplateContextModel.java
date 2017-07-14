@@ -9,14 +9,13 @@ import org.bson.types.ObjectId;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import JGrapeSystem.jGrapeFW_Message;
 import apps.appsProxy;
 import check.formHelper;
 import check.formHelper.formdef;
 import database.DBHelper;
 import database.db;
-import esayhelper.CacheHelper;
-import esayhelper.JSONHelper;
-import esayhelper.jGrapeFW_Message;
+import json.JSONHelper;
 import nlogger.nlogger;
 
 public class TemplateContextModel {
@@ -101,6 +100,39 @@ public class TemplateContextModel {
 		return object != null ? object : null;
 	}
 
+	public JSONObject findName(String tid) {
+		JSONObject object = null;
+		try {
+			object = new JSONObject();
+			object = bind().eq("_id", new ObjectId(tid)).field("name").find();
+		} catch (Exception e) {
+			nlogger.logout(e);
+			object = null;
+		}
+		return object != null ? object : null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public JSONObject findBatchName(String tid) {
+		String[] value = tid.split(",");
+		db db = bind().or();
+		for (String tempid : value) {
+			db.eq("_id", new ObjectId(tempid));
+		}
+		JSONArray array = db.field("_id,name").select();
+		JSONObject object;
+		JSONObject objId;
+		JSONObject rObject = new JSONObject();
+		if (array != null && array.size() != 0) {
+			for (Object object2 : array) {
+				object = (JSONObject) object2;
+				objId = (JSONObject) object.get("_id");
+				rObject.put( objId.getString("$oid") , object.getString("name"));
+			}
+		}
+		return rObject;
+	}
+
 	public String select(String tempinfo) {
 		JSONArray array = null;
 		JSONObject object = JSONHelper.string2json(tempinfo);
@@ -175,6 +207,8 @@ public class TemplateContextModel {
 			} catch (Exception e) {
 				nlogger.logout(e);
 				object = null;
+			}finally {
+				bind().clear();
 			}
 		}
 		return resultMessage(object);
@@ -185,10 +219,10 @@ public class TemplateContextModel {
 		int code = 99;
 		JSONObject object = new JSONObject();
 		object.put("sort", num);
-		if (object!=null) {
+		if (object != null) {
 			try {
 				JSONObject obj = bind().eq("_id", new ObjectId(tempid)).data(object).update();
-				code = (obj!= null ? 0 : 99);
+				code = (obj != null ? 0 : 99);
 			} catch (Exception e) {
 				nlogger.logout(e);
 				code = 99;
@@ -202,10 +236,10 @@ public class TemplateContextModel {
 		int code = 99;
 		JSONObject object = new JSONObject();
 		object.put("tid", tid);
-		if (object!=null) {
+		if (object != null) {
 			try {
 				JSONObject obj = bind().eq("_id", new ObjectId(tempid)).data(object).update();
-				code = (obj!= null ? 0 : 99);
+				code = (obj != null ? 0 : 99);
 			} catch (Exception e) {
 				nlogger.logout(e);
 				code = 99;
@@ -222,13 +256,13 @@ public class TemplateContextModel {
 				bind().eq("_id", new ObjectId(arr[i]));
 			}
 			long codes = bind().deleteAll();
-			code = (Integer.parseInt(String.valueOf(codes))== arr.length ? 0 : 99);
+			code = (Integer.parseInt(String.valueOf(codes)) == arr.length ? 0 : 99);
 		} catch (Exception e) {
 			nlogger.logout(e);
 			code = 99;
 		}
-		
-		return  code;
+
+		return code;
 	}
 
 	/**
@@ -256,7 +290,7 @@ public class TemplateContextModel {
 
 	@SuppressWarnings("unchecked")
 	private String resultMessage(JSONObject object) {
-		if (object==null) {
+		if (object == null) {
 			object = new JSONObject();
 		}
 		_obj.put("records", object);
@@ -265,7 +299,7 @@ public class TemplateContextModel {
 
 	@SuppressWarnings("unchecked")
 	private String resultMessage(JSONArray array) {
-		if (array==null) {
+		if (array == null) {
 			array = new JSONArray();
 		}
 		_obj.put("records", array);

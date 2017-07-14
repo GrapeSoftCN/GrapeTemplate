@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import org.json.simple.JSONObject;
 
-import esayhelper.JSONHelper;
-import esayhelper.TimeHelper;
+import json.JSONHelper;
 import model.TemplateContextModel;
+import time.TimeHelper;
 
 public class TemplateContext {
 	private TemplateContextModel temp = new TemplateContextModel();
@@ -35,7 +35,7 @@ public class TemplateContext {
 	}
 
 	public String TempFindByTid(String tid) {
-		JSONObject object = temp.find(tid);
+		JSONObject object = temp.findName(tid);
 		String name = "";
 		if (object != null) {
 			name = object.get("name").toString();
@@ -43,6 +43,19 @@ public class TemplateContext {
 		return name;
 	}
 
+	/**
+	 * 批量获取模版名称
+	 * @project	GrapeTemplate
+	 * @package interfaceApplication
+	 * @file TemplateContext.java
+	 * 
+	 * @param tid   入参格式为tid,tid,tid
+	 * @return   出参格式为{tid:name,tid:name}
+	 *
+	 */
+	public String TempFindByTids(String tid) {
+		return temp.findBatchName(tid).toJSONString();
+	}
 	public String TempFindByType(String type) {
 		return temp.search(type);
 	}
