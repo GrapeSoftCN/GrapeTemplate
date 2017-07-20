@@ -117,7 +117,9 @@ public class TemplateContextModel {
 		String[] value = tid.split(",");
 		db db = bind().or();
 		for (String tempid : value) {
-			db.eq("_id", new ObjectId(tempid));
+			if (!tempid.equals("")) {
+				db.eq("_id", new ObjectId(tempid));
+			}
 		}
 		JSONArray array = db.field("_id,name").select();
 		JSONObject object;
