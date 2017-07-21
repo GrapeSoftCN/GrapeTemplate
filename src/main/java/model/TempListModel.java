@@ -19,20 +19,17 @@ import json.JSONHelper;
 import nlogger.nlogger;
 
 public class TempListModel {
-	private static DBHelper dbtemp;
-	private static formHelper _form;
+	private DBHelper dbtemp;
+	private formHelper _form;
 	private JSONObject _obj = new JSONObject();
-
-	static {
-		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(), "templateList", "_id");
-		_form = dbtemp.getChecker();
-	}
 
 	private db bind() {
 		return dbtemp.bind(String.valueOf(appsProxy.appid()));
 	}
 
 	public TempListModel() {
+		dbtemp = new DBHelper(appsProxy.configValue().get("db").toString(), "templateList", "_id");
+		_form = dbtemp.getChecker();
 		_form.putRule("name", formdef.notNull);
 	}
 
