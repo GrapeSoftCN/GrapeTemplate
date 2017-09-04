@@ -23,8 +23,6 @@ public class TemplateContextModel {
 	private formHelper _form;
 	private JSONObject _obj = new JSONObject();
 
-		
-
 	private db bind() {
 		return dbtemp.bind(String.valueOf(appsProxy.appid()));
 	}
@@ -101,34 +99,38 @@ public class TemplateContextModel {
 
 	public JSONObject findName(String tid) {
 		JSONObject object = null;
-		try {
-			object = new JSONObject();
-			object = bind().eq("_id", new ObjectId(tid)).field("name").find();
-		} catch (Exception e) {
-			nlogger.logout(e);
-			object = null;
+		if (!tid.equals("0")) {
+			try {
+				object = new JSONObject();
+				object = bind().eq("_id", new ObjectId(tid)).field("name").find();
+			} catch (Exception e) {
+				nlogger.logout(e);
+				object = null;
+			}
 		}
 		return object != null ? object : null;
 	}
 
 	@SuppressWarnings("unchecked")
 	public JSONObject findBatchName(String tid) {
-		String[] value = tid.split(",");
-		db db = bind().or();
-		for (String tempid : value) {
-			if (!tempid.equals("")) {
-				db.eq("_id", new ObjectId(tempid));
-			}
-		}
-		JSONArray array = db.field("_id,name").select();
-		JSONObject object;
-		JSONObject objId;
 		JSONObject rObject = new JSONObject();
-		if (array != null && array.size() != 0) {
-			for (Object object2 : array) {
-				object = (JSONObject) object2;
-				objId = (JSONObject) object.get("_id");
-				rObject.put( objId.getString("$oid") , object.getString("name"));
+		if (tid != null && !tid.equals("") && !tid.equals("0")) {
+			String[] value = tid.split(",");
+			db db = bind().or();
+			for (String tempid : value) {
+				if (!tempid.equals("") && !tempid.equals("0")) {
+					db.eq("_id", new ObjectId(tempid));
+				}
+			}
+			JSONArray array = db.field("_id,name").select();
+			JSONObject object;
+			JSONObject objId;
+			if (array != null && array.size() != 0) {
+				for (Object object2 : array) {
+					object = (JSONObject) object2;
+					objId = (JSONObject) object.get("_id");
+					rObject.put(objId.getString("$oid"), object.getString("name"));
+				}
 			}
 		}
 		return rObject;
@@ -208,7 +210,7 @@ public class TemplateContextModel {
 			} catch (Exception e) {
 				nlogger.logout(e);
 				object = null;
-			}finally {
+			} finally {
 				bind().clear();
 			}
 		}
